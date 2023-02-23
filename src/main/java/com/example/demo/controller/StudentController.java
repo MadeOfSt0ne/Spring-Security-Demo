@@ -23,7 +23,7 @@ public class StudentController {
 
     @GetMapping(path = "{studentId}")
     public Student getStudent(@PathVariable("studentId") Integer studentId) {
-        log.info("Get student with id = {}", studentId);
+        log.info("GET student with id = {}", studentId);
         return STUDENTS.stream()
                 .filter(s -> s.studentId().equals(studentId))
                 .findFirst()

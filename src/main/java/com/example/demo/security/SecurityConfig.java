@@ -1,22 +1,20 @@
 package com.example.demo.security;
 
+import com.example.demo.auth.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.example.demo.security.UserRole.*;
+import static com.example.demo.security.UserRole.STUDENT;
 
 @Configuration
 @EnableWebSecurity
@@ -24,12 +22,13 @@ import static com.example.demo.security.UserRole.*;
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
+    private final AppUserService appUserService;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder) {
+    public SecurityConfig(PasswordEncoder passwordEncoder, AppUserService appUserService) {
         this.passwordEncoder = passwordEncoder;
+        this.appUserService = appUserService;
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,6 +45,7 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated())
                 //.httpBasic(Customizer.withDefaults());
+                .authenticationProvider(daoAuthenticationProvider())
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .defaultSuccessUrl("/courses", true)
@@ -68,7 +68,7 @@ public class SecurityConfig {
     /**
      * InMemoryUserDetailService
      */
-    @Bean
+    /*@Bean
     public UserDetailsService userDetailsService() {
         UserDetails arturUser = User.builder()
                 .username("artur")
@@ -96,5 +96,13 @@ public class SecurityConfig {
                 smithUser,
                 tomUser
         );
+    }*/
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(appUserService);
+        return provider;
     }
 }

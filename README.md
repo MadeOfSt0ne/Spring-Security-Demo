@@ -4,3 +4,4 @@
 * Permission Based Authentication
 * Cross Site Request Forgery
 * Form Based Authentication (custom login page :-)
+* Database Authentication
